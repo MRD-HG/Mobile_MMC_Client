@@ -78,7 +78,7 @@ class _AccueilState extends State<Accueil> {
               Stack(
                 children: [
                   Image.asset(
-                    'images/banner.png',
+                    'assets/images/banner.png',
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: 250,
