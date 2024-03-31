@@ -10,6 +10,7 @@ class Sessions extends StatefulWidget {
 class _SessionsState extends State<Sessions> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const  Scaffold(
+      body:Text("Session"));
   }
 }
