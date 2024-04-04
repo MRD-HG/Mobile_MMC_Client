@@ -18,7 +18,7 @@ class _ProgramState extends State<Program> {
   }
   Future<void> fetchData() async{
     try{
-      final response = await http.get(Uri.parse('https://smallorangerock30.conveyor.cloud/gateway/program'));
+      final response = await http.get(Uri.parse('http://10.5.230.9:45460/gateway/program'));
       if(response.statusCode==200){
         setState(() {
           programs=json.decode(response.body);

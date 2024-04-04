@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -43,7 +45,7 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage>
     try {
       final response = await http.get(
         Uri.parse(
-            'https://smallorangerock30.conveyor.cloud/gateway/speaker/${widget.idspeaker}'),
+            'http://10.5.230.9:45460/gateway/speaker/${widget.idspeaker}'),
      );
       if (response.statusCode == 200) {
         setState(() {
