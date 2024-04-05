@@ -20,7 +20,7 @@ class _EventState extends State<Event> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse('http://10.5.230.9:45460/gateway/event'));
+      final response = await http.get(Uri.parse('https://fastbrassbox20.conveyor.cloud/gateway/event'));
       if (response.statusCode == 200) {
         setState(() {
           events = json.decode(response.body);
@@ -29,8 +29,8 @@ class _EventState extends State<Event> {
         throw Exception("Failed to load events");
       }
     } catch (e) {
-      Navigator.push(
-        context, MaterialPageRoute(builder: ((context) => Error404())));
+      // Navigator.push(
+      //   context, MaterialPageRoute(builder: ((context) => Error404())));
     }
   }
 

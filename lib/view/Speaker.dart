@@ -24,7 +24,7 @@ class _SpeakerState extends State<Speaker> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse('http://10.5.230.9:45460/gateway/speaker'));
+      final response = await http.get(Uri.parse('https://fastbrassbox20.conveyor.cloud/gateway/speaker'));
       if (response.statusCode == 200) {
         setState(() {
           speakers = json.decode(response.body);
@@ -33,8 +33,8 @@ class _SpeakerState extends State<Speaker> {
         throw Exception("Failed to Load Speakers");
       }
     } catch (e) {
-      Navigator.push(
-        context, MaterialPageRoute(builder: ((context) => Error404())));
+      // Navigator.push(
+      //   context, MaterialPageRoute(builder: ((context) => Error404())));
     }
   }
   
@@ -51,6 +51,7 @@ class _SpeakerState extends State<Speaker> {
           mainAxisSpacing: 16.0,
           childAspectRatio: 0.8,
         ),
+        
         itemCount: speakers.length,
         itemBuilder: (BuildContext context, int index) {
           final speaker = speakers[index];

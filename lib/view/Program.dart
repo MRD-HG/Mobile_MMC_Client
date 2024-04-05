@@ -18,7 +18,7 @@ class _ProgramState extends State<Program> {
   }
   Future<void> fetchData() async{
     try{
-      final response = await http.get(Uri.parse('http://10.5.230.9:45460/gateway/program'));
+      final response = await http.get(Uri.parse('https://fastbrassbox20.conveyor.cloud/gateway/program'));
       if(response.statusCode==200){
         setState(() {
           programs=json.decode(response.body);
@@ -30,7 +30,7 @@ class _ProgramState extends State<Program> {
       }
     
     catch(e){
-      Navigator.push(context, MaterialPageRoute(builder: ((context)=>Error404())));
+      // Navigator.push(context, MaterialPageRoute(builder: ((context)=>Error404())));
     }
   }
 

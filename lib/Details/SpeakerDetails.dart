@@ -45,7 +45,7 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage>
     try {
       final response = await http.get(
         Uri.parse(
-            'http://10.5.230.9:45460/gateway/speaker/${widget.idspeaker}'),
+            'https://fastbrassbox20.conveyor.cloud/gateway/speaker/${widget.idspeaker}'),
      );
       if (response.statusCode == 200) {
         setState(() {
