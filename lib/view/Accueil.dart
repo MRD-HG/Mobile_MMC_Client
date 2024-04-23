@@ -3,9 +3,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
 import '../Details/Register.dart';
-
+import '../controller/Constant.dart';
+import 'package:intl/intl.dart';
 class Events {
   final String id;
   final String title;
@@ -48,8 +48,8 @@ class Accueil extends StatefulWidget {
 class _AccueilState extends State<Accueil> {
   late Future<List<Events>> _events;
 
-  TextEditingController _eventSearch = TextEditingController();
-
+  final TextEditingController _eventSearch = TextEditingController();
+ String url = Constant.apiUrl;
   @override
   void initState() {
     super.initState();
@@ -58,11 +58,10 @@ class _AccueilState extends State<Accueil> {
 
   Future<List<Events>> fetchEvents() async {
     final response =
-        await http.get(Uri.parse('https://fastbrassbox20.conveyor.cloud/gateway/event'));
+        await http.get(Uri.parse('$url/event'));
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
-      List<Events> events =
-          data.map((e) => Events.fromJson(e)).toList();
+      List<Events> events = data.map((e) => Events.fromJson(e)).toList();
       return events;
     } else {
       throw Exception('Failed to load events');
@@ -71,8 +70,7 @@ class _AccueilState extends State<Accueil> {
 
   List<Events> filterEvents(List<Events> events, String query) {
     return events
-        .where((event) =>
-            event.title.toLowerCase().contains(query.toLowerCase()))
+        .where((event) => event.title.toLowerCase().contains(query.toLowerCase()))
         .toList();
   }
 
@@ -85,7 +83,6 @@ class _AccueilState extends State<Accueil> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-             
               Stack(
                 children: [
                   Image.asset(
@@ -127,7 +124,7 @@ class _AccueilState extends State<Accueil> {
                 ],
               ),
               const Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding:  EdgeInsets.all(16.0),
                 child: Text(
                   'Upcoming Events',
                   style: TextStyle(
@@ -150,15 +147,14 @@ class _AccueilState extends State<Accueil> {
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: events.length,
-                        itemBuilder: (contxt, index) {
+                        itemBuilder: (context, index) {
                           Events event = events[index];
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        EventDetailsPage(event: event)),
+                                    builder: (context) => EventDetailsPage(event: event)),
                               );
                             },
                             child: Container(
@@ -194,8 +190,7 @@ class _AccueilState extends State<Accueil> {
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           event.title,
@@ -240,9 +235,8 @@ class _AccueilState extends State<Accueil> {
 
 class EventDetailsPage extends StatelessWidget {
   final Events event;
-
-  const EventDetailsPage({Key? key, required this.event}) : super(key: key);
-
+   EventDetailsPage({Key? key, required this.event}) : super(key: key);
+ String url = Constant.apiUrl;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -279,6 +273,11 @@ class EventDetailsPage extends StatelessWidget {
                 color: Colors.grey[600],
               ),
             ),
+            Text(DateFormat('yyyy-MM-dd').format(event.startDate),style:TextStyle(
+              fontSize: 16,
+              color:Colors.blue[700],
+              fontWeight: FontWeight.bold,
+            )),
             SizedBox(height: 10),
             Text(
               'Description: ${event.description}',
@@ -290,19 +289,79 @@ class EventDetailsPage extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder :(((context)=>RegisterForm()))));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RegisterForm(),
+                  ),
+                );
               },
-              child: Text('Register Now'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.yellow[600],
               ),
+              child:  Text('Register Now'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              "Sessions of Event",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            FutureBuilder<List<dynamic>>(
+              future: fetchEventSessions(event.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List<dynamic> sessions = snapshot.data!;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: sessions.length,
+                    itemBuilder: (context, index) {
+                      final session = sessions[index];
+                      return ExpansionTile(
+                        
+                        title:Text(session['name'] ?? 'Unnamed Session',style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(session['startDate'].split('T')[1]  +" // "+session["endDate"].split('T')[1]) ,
+                        children:[
+                          
+                          ListTile(
+                            leading:CircleAvatar(
+                              backgroundColor:Color(0xFFFFB703),
+                              child:Text(session['numPlace'].toString())),
+                            title: Text(session['description'] ?? ''),
+                          ),
+                         
+                        ]
+                      
+                        
+                      );
+                    },
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+                return CircularProgressIndicator();
+              },
             ),
           ],
         ),
       ),
     );
   }
+
+  Future<List<dynamic>> fetchEventSessions(String eventId) async {
+    final response = await http.get(Uri.parse('$url/Session/GetSessionByEventId/$eventId'));
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data;
+    } else {
+      throw Exception('Failed to load event sessions');
+    }
+  }
 }
+
 
 void main() {
   runApp(Accueil());

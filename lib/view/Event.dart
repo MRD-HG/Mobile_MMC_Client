@@ -3,6 +3,9 @@ import 'package:client_mobile/Error/Error404.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../Details/Register.dart';
+import '../controller/Constant.dart';
+
 class Event extends StatefulWidget {
   const Event({Key? key});
 
@@ -12,6 +15,7 @@ class Event extends StatefulWidget {
 
 class _EventState extends State<Event> {
   List<dynamic> events = [];
+   String url = Constant.apiUrl;
   @override
   void initState() {
     super.initState();
@@ -20,7 +24,7 @@ class _EventState extends State<Event> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse('https://fastbrassbox20.conveyor.cloud/gateway/event'));
+      final response = await http.get(Uri.parse('$url/event'));
       if (response.statusCode == 200) {
         setState(() {
           events = json.decode(response.body);
@@ -44,7 +48,7 @@ class _EventState extends State<Event> {
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: Color(0xFF74b2da), // primary-blue color
+              color: Color.fromARGB(255, 155, 191, 215), 
             ),
             child: Padding(
               padding: EdgeInsets.all(16),
@@ -79,10 +83,15 @@ class _EventState extends State<Event> {
                   SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      // Handle Sign Now button click
+                      Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RegisterForm(),
+                  ),
+                );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFC83A31), // primary-red color
+                      backgroundColor: Color(0xFFFFB703), 
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -90,7 +99,7 @@ class _EventState extends State<Event> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                       child: Text(
-                        'Sign Now',
+                        'Register',
                         style: TextStyle(fontSize: 18),
                       ),
                     ),

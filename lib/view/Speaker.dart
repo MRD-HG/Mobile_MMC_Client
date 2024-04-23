@@ -5,7 +5,7 @@ import 'package:client_mobile/Error/Error404.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:client_mobile/Details/SpeakerDetails.dart';
-
+import '../controller/Constant.dart';
 class Speaker extends StatefulWidget {
   const Speaker({super.key});
 
@@ -15,6 +15,7 @@ class Speaker extends StatefulWidget {
 
 class _SpeakerState extends State<Speaker> {
   List<dynamic> speakers = [];
+  String url = Constant.apiUrl;
   
   @override
   void initState() {
@@ -24,7 +25,7 @@ class _SpeakerState extends State<Speaker> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse('https://fastbrassbox20.conveyor.cloud/gateway/speaker'));
+      final response = await http.get(Uri.parse('$url/speaker'));
       if (response.statusCode == 200) {
         setState(() {
           speakers = json.decode(response.body);
@@ -81,6 +82,8 @@ class _SpeakerState extends State<Speaker> {
             },
             child: Card(
               elevation: 10,
+
+
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
               child: Padding(
                 padding: EdgeInsets.all(16.0),
@@ -88,7 +91,7 @@ class _SpeakerState extends State<Speaker> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 120.0, // Make the image larger
+                      width: 120.0, 
                       height: 120.0,
                       decoration:const BoxDecoration(
                         shape: BoxShape.circle,
@@ -98,17 +101,17 @@ class _SpeakerState extends State<Speaker> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 16.0),
+                    // SizedBox(height: 16.0),
                     Text(
                       '${speaker['firstname']} ${speaker['lastname']}',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 8.0),
+                    // SizedBox(height: 8.0),
                     Text(
                       speaker['bio'],
                       textAlign: TextAlign.center,
-                      maxLines: 3,
+                      // maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: Colors.grey),
                     ),
