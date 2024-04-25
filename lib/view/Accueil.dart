@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../Details/Register.dart';
+import '../Details/SpeakerDetails.dart';
 import '../controller/Constant.dart';
 import 'package:intl/intl.dart';
 class Events {
@@ -121,6 +122,7 @@ class _AccueilState extends State<Accueil> {
                       ),
                     ),
                   ),
+                
                 ],
               ),
               const Padding(
@@ -248,6 +250,7 @@ class EventDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+                
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Image.network(

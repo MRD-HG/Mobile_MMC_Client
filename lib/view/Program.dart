@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:ui';
-
-
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 import '../controller/Constant.dart';
 
 class Program extends StatefulWidget {
-  Program({super.key});
+  Program( {super.key});
 
   @override
   State<Program> createState() => _ProgramState();
@@ -38,32 +36,43 @@ class _ProgramState extends State<Program> {
       print(e);
     }
   }
+
+  @override
   Widget build(BuildContext context) {
-  if (programs.isEmpty) {
-    return Center(
-      child: CircularProgressIndicator(), 
-    );
-  } else {
     return Scaffold(
-      body: ListView.builder(
-        itemCount: programs.length, 
-        itemBuilder: (BuildContext context, int index) {
-          final program = programs[index];
-          return ListTile(
-            title: Container(
-              color: Colors.yellow[600],
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.2,
-                width: MediaQuery.of(context).size.width * 0.7,
-                child: Center(
-                  child:Text(program['title'],style:TextStyle(fontSize:20,color: Colors.white,fontWeight:FontWeight.bold)),
-                ),
-              ),
+      body: programs.isEmpty
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: programs.length,
+              itemBuilder: (BuildContext context, int index) {
+                final program = programs[index];
+                return ListTile(
+                  title: Container(
+                    color: Colors.yellow[600],
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 200, // Adjust the height as needed
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          BlurHash(
+                            hash: 'assets/images/1702198475838.png',
+                            imageFit: BoxFit.cover,
+                          ),
+                          Text(
+                            program['title'],
+                            style:
+                                TextStyle(fontSize: 30, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
-}
 }

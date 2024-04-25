@@ -107,6 +107,7 @@ class _SpeakerState extends State<Speaker> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
+                
                     // SizedBox(height: 8.0),
                     Text(
                       speaker['bio'],

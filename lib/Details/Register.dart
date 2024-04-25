@@ -66,7 +66,7 @@ Future<void> _submitForm() async {
       appBar: AppBar(
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: Colors.blue[600],
+        backgroundColor: Colors.yellow[600],
         title: Text('Register',style:TextStyle(color: Colors.white)),
       ),
       body: Padding(

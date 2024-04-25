@@ -1,7 +1,7 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -21,6 +21,8 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
   String url = Constant.apiUrl;
   Map<String, dynamic> speakerDetails = {};
   bool isLoading = true;
+  final double coverHeight = 280;
+  final double profilHeight = 144;
 
   @override
   void initState() {
@@ -28,7 +30,7 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
     fetchData();
   }
 
- Future<void> fetchData() async {
+  Future<void> fetchData() async {
     try {
       final response = await http.get(
         Uri.parse('$url/speaker/${widget.idspeaker}'),
@@ -43,7 +45,7 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
       }
     } catch (e) {
       setState(() {
-        isLoading = false; 
+        isLoading = false;
       });
     }
   }
@@ -52,133 +54,124 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Speaker Details'),
+        backgroundColor: Colors.blue[600],
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text('Speaker Details', style: TextStyle(color: Colors.white)),
       ),
-       body: isLoading
-          ? Center(
-              child: CircularProgressIndicator(), 
-            )
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                
-                Container(
-                decoration: BoxDecoration(
-                  color: Colors.yellow[600], // primary-yellow: #eebc54
-                  shape: BoxShape.circle,
-                ),
-                padding: const EdgeInsets.all(4.0),
-                child: CircleAvatar(
-                  radius: 80,
-                  backgroundImage: AssetImage(
-                    'assets/images/said_wahid.',
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.0),
-              Card(
-                elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.speakerName,
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 16.0),
-                      Text(
-                        speakerDetails['bio'] ?? '',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      SizedBox(height: 16.0),
-                      Text(
-                        'Company: ${speakerDetails['company'] ?? ''}',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      SizedBox(height: 16.0),
-                      Text(
-                        'Email: ${speakerDetails['email'] ?? ''}',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      SizedBox(height: 16.0),
-                      Text(
-                        'Description: ${speakerDetails['description'] ?? ''}',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      SizedBox(height: 16.0),
-                      Text(
-                        'Social Media:',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 8.0),
-                      if (speakerDetails['speakerSocialMedia'] != null)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (speakerDetails['speakerSocialMedia']['linkedin'] != null)
-                              _buildSocialMediaRow(
-                                icon: FontAwesomeIcons.linkedin,
-                                text: 'LinkedIn',
-                                link: speakerDetails['speakerSocialMedia']['linkedin'],
-                              ),
-                            if (speakerDetails['speakerSocialMedia']['instagram'] != null)
-                              _buildSocialMediaRow(
-                                icon: FontAwesomeIcons.instagram,
-                                text: 'Instagram',
-                                link: speakerDetails['speakerSocialMedia']['instagram'],
-                              ),
-                            if (speakerDetails['speakerSocialMedia']['facebook'] != null)
-                              _buildSocialMediaRow(
-                                icon: FontAwesomeIcons.facebook,
-                                text: 'Facebook',
-                                link: speakerDetails['speakerSocialMedia']['facebook'],
-                              ),
-                            if (speakerDetails['speakerSocialMedia']['x'] != null)
-                              _buildSocialMediaRow(
-                                icon: FontAwesomeIcons.twitter,
-                                text: 'Twitter',
-                                link: speakerDetails['speakerSocialMedia']['x'],
-                              ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-                ],
-              ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                topBody(),
+                bodyContent(),
+              ],
             ),
+    );
+  }
+
+  Widget socialMedia(IconData icon) => CircleAvatar(
+        radius: 25,
+        child: Material(
+          shape: CircleBorder(),
+          clipBehavior: Clip.hardEdge,
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {},
+            child: Center(
+                child: Icon(
+              icon,
+              size: 28,
+              color: Color(0xFFEEBC54),
+            )),
+          ),
+        ),
+      );
+
+  Widget bodyContent() => Column(
+        children: [
+          SizedBox(height: 8),
+          Text(
+            speakerDetails['firstname'] + ' ' + speakerDetails['lastname'],
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            speakerDetails['bio'],
+            style: TextStyle(fontSize: 20, color: Colors.black38),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              socialMedia(FontAwesomeIcons.xTwitter),
+              SizedBox(width: 5),
+              socialMedia(FontAwesomeIcons.facebook),
+              SizedBox(width: 5),
+              socialMedia(FontAwesomeIcons.instagram),
+              SizedBox(width: 5),
+              socialMedia(FontAwesomeIcons.linkedinIn),
+              SizedBox(width: 5),
+              socialMedia(FontAwesomeIcons.github),
+            ],
+          ),
+          SizedBox(height: 8),
+          bodyAbout(),
+        ],
+      );
+
+  Widget bodyAbout() => Container(
+        padding: EdgeInsets.symmetric(horizontal: 48),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'About',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 14),
+            Text(
+              speakerDetails['description'],
+              style: TextStyle(fontSize: 18, height: 1.4),
+            ),
+            SizedBox(height: 18),
+          ],
+        ),
+      );
+
+  Widget buildImage() => Container(
+        color: Colors.white,
+        child: Image.asset('assets/images/1702198475838.jpg'),
+        width: double.infinity,
+        height: coverHeight,
+      );
+
+  Widget profilImage() => CircleAvatar(
+        radius: profilHeight / 2,
+        backgroundColor: Color.fromARGB(255, 217, 245, 198),
+        backgroundImage: AssetImage('assets/images/said_wahid.png'),
+      );
+
+  Widget topBody() {
+    final top = coverHeight - profilHeight / 2;
+    final bottom = profilHeight / 2;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        Container(
+          margin: EdgeInsets.only(bottom: bottom),
+          child: buildImage(),
+        ),
+        Positioned(
+          top: top,
+          child: profilImage(),
+        )
+      ],
     );
   }
 }
-  
-  
-
-  Widget _buildSocialMediaRow({
-    required IconData icon,
-    required String text,
-    required String link,
-  }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Icon(icon),
-          SizedBox(width: 8.0),
-          TextButton(
-            onPressed: () {
-              // Handle social media link click
-            },
-            child: Text(
-              text,
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
