@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_blurhash/flutter_blurhash.dart';
 import '../controller/Constant.dart';
 
 class Program extends StatefulWidget {
-  Program( {super.key});
+  Program({super.key});
 
   @override
   State<Program> createState() => _ProgramState();
@@ -32,7 +32,6 @@ class _ProgramState extends State<Program> {
         throw Exception("Failed to load Programs");
       }
     } catch (e) {
-      // Handle error
       print(e);
     }
   }
@@ -40,7 +39,11 @@ class _ProgramState extends State<Program> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: programs.isEmpty
+      body:programBody(),
+    );
+  }
+  Widget programBody()=>Container(
+    child: programs.isEmpty
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -50,21 +53,27 @@ class _ProgramState extends State<Program> {
                 final program = programs[index];
                 return ListTile(
                   title: Container(
-                    color: Colors.yellow[600],
+                    color: Colors.white,
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width,
-                      height: 200, // Adjust the height as needed
+                      height: 200,
                       child: Stack(
                         alignment: Alignment.center,
                         children: <Widget>[
-                          BlurHash(
-                            hash: 'assets/images/1702198475838.png',
-                            imageFit: BoxFit.cover,
+                           ImageFiltered(
+                            imageFilter: ImageFilter.blur(
+                              sigmaX:10,
+                              sigmaY:10,
+                            ),
+                            child:Image.asset('assets/images/1702198475838.jpg',
+                            fit: BoxFit.fill,) ,
+                            ),
+                          Container(
+                            color: Colors.black.withOpacity(0.4),
                           ),
                           Text(
                             program['title'],
-                            style:
-                                TextStyle(fontSize: 30, color: Colors.white),
+                            style: TextStyle(fontSize: 30, color: Colors.white,fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -73,6 +82,6 @@ class _ProgramState extends State<Program> {
                 );
               },
             ),
-    );
-  }
+  
+  );
 }
