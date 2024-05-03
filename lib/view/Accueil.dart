@@ -161,7 +161,7 @@ class _AccueilState extends State<Accueil> {
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");
             }
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           },
         ),
       ],
@@ -169,26 +169,45 @@ class _AccueilState extends State<Accueil> {
   }
 
   Widget _buildEventList(List<Events> events) {
-    return SizedBox(
-      height: 300,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: events.length,
-        itemBuilder: (context, index) {
-          Events event = events[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EventDetailsPage(event: event),
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 300,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              Events event = events[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EventDetailsPage(event: event),
+                    ),
+                  );
+                },
+                child: _buildEventCard(event),
               );
             },
-            child: _buildEventCard(event),
-          );
-        },
-      ),
+          ),
+        ),
+        SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Sponsors',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF74b2da),
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        _buildSponsors(),
+      ],
     );
   }
 
@@ -226,7 +245,7 @@ class _AccueilState extends State<Accueil> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   event.title,
@@ -247,6 +266,40 @@ class _AccueilState extends State<Accueil> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSponsors() {
+    return SizedBox(
+      height: 100,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _buildSponsorItem('Sponsor 1', 'assets/images/sponsor1.png'),
+          _buildSponsorItem('Sponsor 2', 'assets/images/sponsor2.png'),
+          _buildSponsorItem('Sponsor 3', 'assets/images/sponsor3.png'),
+          
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSponsorItem(String title, String imagePath) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundImage: AssetImage(imagePath),
+          ),
+          SizedBox(height: 5),
+          Text(
+            title,
+            style: TextStyle(fontSize: 12),
           ),
         ],
       ),

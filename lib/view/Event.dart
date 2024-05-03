@@ -1,8 +1,4 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'dart:convert';
-//import 'package:client_mobile/Error/Error404.dart';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,15 +6,18 @@ import '../Details/Register.dart';
 import '../controller/Constant.dart';
 
 class Event extends StatefulWidget {
-  const Event({Key? key});
+  const Event({Key? key}) : super(key: key);
 
   @override
   State<Event> createState() => _EventState();
 }
 
-class _EventState extends State<Event> {
+class _EventState extends State<Event> with TickerProviderStateMixin {
   List<dynamic> events = [];
+  bool isLoading = true;
   String url = Constant.apiUrl;
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -27,100 +26,150 @@ class _EventState extends State<Event> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse('$url/event'));
+      final response = await http
+          .get(Uri.parse('$url/event'))
+          .timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         setState(() {
           events = json.decode(response.body);
+          isLoading = false;
         });
       } else {
         throw Exception("Failed to load events");
       }
     } catch (e) {
-      // Navigator.push(
-      //   context, MaterialPageRoute(builder: ((context) => Error404())));
+      setState(() {
+        isLoading = false;
+      });
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Error"),
+          content: Text(
+              "Failed to load data. Please check your connection and try again."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // close the dialog
+                fetchData(); // retry fetching data
+              },
+              child: Text("Retry"),
+            ),
+          ],
+        ),
+      );
     }
   }
 
+  List<dynamic> getEvents(bool isUpcoming) {
+    return events.where((event) {
+      final eventDate = DateTime.parse(event['startDate']);
+      return isUpcoming
+          ? eventDate.isAfter(DateTime.now())
+          : eventDate.isBefore(DateTime.now());
+    }).where((event) {
+      return event['title']
+          .toString()
+          .toLowerCase()
+          .contains(_searchController.text.toLowerCase());
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[600],
+        title: Text('Events', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
       ),
-      body: event(),
-    );
-  }
-
-  Widget event() {
-    return SingleChildScrollView(
-      child: Stack(children: [
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextFormField(
-                decoration: InputDecoration(
-                    hintText: 'Event Name',
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: TextFormField(
+                  controller: _searchController,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    hintText: 'Search events by name',
                     prefixIcon: Padding(
-                      padding: EdgeInsets.all(1),
+                      padding: EdgeInsets.all(10),
                       child: Icon(Icons.search),
                     ),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)))),
-          ),
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(children: [
-                  Text(
-                    "Upcoming",
-                    style: TextStyle(
-                        color: Color(0xFFEEBC54),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
-                  SizedBox(width: 5),
-                  Text("Events",
-                      style: TextStyle(
-                          color: Color(0xFF74b2da),
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold)),
-                ]),
-              )
+                ),
+              ),
+              if (isLoading)
+                Center(child: CircularProgressIndicator())
+              else
+                Column(
+                  children: [
+                    _buildEventSection(getEvents(true), 'Upcoming Events'),
+                    _buildEventSection(getEvents(false), 'Passed Events'),
+                  ],
+                ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: Center(
-              child: Column(children: [
-                cardEvent(),
-                SizedBox(height:10),
-                cardEvent(),
-                SizedBox(height:10),
-                cardEvent(),
-                SizedBox(height:10),
-                cardEvent(),
-              
-              ]),
-            ),
-          ),
-        ],
-      )
-    ])
+        ),
+      ),
     );
   }
 
-  Widget cardEvent() => Card(
-        clipBehavior: Clip.antiAlias, 
+  Widget _buildEventSection(List<dynamic> eventList, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: Color(0xFFEEBC54),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: eventList.length,
+          itemBuilder: (context, index) {
+            final AnimationController controller = AnimationController(
+              duration: const Duration(milliseconds: 500),
+              vsync: this,
+            );
+            final Animation<double> opacityAnimation =
+                Tween<double>(begin: 0.0, end: 1.0).animate(controller);
+            controller.forward();
+
+            return FadeTransition(
+              opacity: opacityAnimation,
+              child: cardEvent(eventList[index]),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget cardEvent(dynamic event) => Card(
+        clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            Image.asset(
-              "assets/images/tanger.jpg",
-              
-              fit: BoxFit.cover,
-              height: 170.0, 
+            Image.network(
+              event['imagePath'].startsWith('http')
+                  ? event['imagePath']
+                  : 'assets/images/blue.jpg',
+              fit: BoxFit.fitWidth,
+              height: 170.0,
             ),
             Positioned(
               bottom: 16.0,
@@ -129,7 +178,7 @@ class _EventState extends State<Event> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Event Title",
+                    event['title'],
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
@@ -137,7 +186,7 @@ class _EventState extends State<Event> {
                     ),
                   ),
                   Text(
-                    "Date & Time",
+                    "${event['date']} ${event['time']}",
                     style: TextStyle(color: Colors.white70),
                   ),
                 ],
@@ -147,93 +196,24 @@ class _EventState extends State<Event> {
               bottom: 10.0,
               right: 10.0,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow[600]),
-                onPressed: () {},
-                child: Text("Book Now",style:TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.yellow[600],
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RegisterForm(),
+                    ),
+                  );
+                },
+                child: Text(
+                  "Register",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
         ),
-      );
-
-
-
-  Widget eventPage() => ListView.builder(
-        itemCount: events.length,
-        itemBuilder: (BuildContext context, int index) {
-          final event = events[index];
-          return Column(
-            children: [
-              SizedBox(height: 10),
-              Container(padding: EdgeInsets.all(10), child: TextFormField()),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: const Color.fromARGB(255, 155, 191, 215),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 150,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            image: NetworkImage(event['imagePath']),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        event['title'],
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        event['description'],
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RegisterForm(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFB703),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 24),
-                          child: Text(
-                            'Register',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
       );
 }

@@ -89,6 +89,7 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
       );
 
   Widget bodyContent() => Column(
+    crossAxisAlignment :  CrossAxisAlignment.center,
         children: [
           SizedBox(height: 8),
           Text(
@@ -99,9 +100,12 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
             ),
           ),
           SizedBox(height: 8),
-          Text(
-            speakerDetails['bio'],
-            style: TextStyle(fontSize: 20, color: Colors.black38),
+          Center(
+            child: Text(
+              speakerDetails['bio'],
+              style: TextStyle(fontSize: 20, color: Colors.black38),
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(height: 16),
           Row(
@@ -126,16 +130,19 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
   Widget bodyAbout() => Container(
         padding: EdgeInsets.symmetric(horizontal: 48),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               'About',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 14),
-            Text(
-              speakerDetails['description'],
-              style: TextStyle(fontSize: 18, height: 1.4),
+            Center(
+              child: Text(
+                speakerDetails['description'],
+                style: TextStyle(fontSize: 18, height: 1.4),
+                textAlign: TextAlign.center,
+              ),
             ),
             SizedBox(height: 18),
           ],
@@ -144,7 +151,7 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
 
   Widget buildImage() => Container(
         color: Colors.white,
-        child: Image.asset('assets/images/1702198475838.jpg'),
+        child: Text(""),
         width: double.infinity,
         height: coverHeight,
       );
@@ -156,8 +163,8 @@ class _SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
       );
 
   Widget topBody() {
-    final top = coverHeight - profilHeight / 2;
-    final bottom = profilHeight / 2;
+    final top = coverHeight - profilHeight -30 ;
+    final bottom = profilHeight /16;
 
     return Stack(
       clipBehavior: Clip.none,

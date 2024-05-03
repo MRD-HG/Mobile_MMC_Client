@@ -1,3 +1,3 @@
 class Constant{
-  static const String apiUrl="http://10.5.17.111:45466/gateway";
+  static const String apiUrl="https://smallsparklygrape40.conveyor.cloud/gateway";
 }
