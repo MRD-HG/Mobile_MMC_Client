@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../Details/programDetails.dart';
 import '../controller/Constant.dart';
+
 
 class Program extends StatefulWidget {
   Program({super.key});
@@ -35,53 +37,64 @@ class _ProgramState extends State<Program> {
       print(e);
     }
   }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: programBody(),
+  );
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body:programBody(),
-    );
-  }
-  Widget programBody()=>Container(
+Widget programBody() => Padding(
+  padding: const EdgeInsets.all(10),
+  child: Container(
     child: programs.isEmpty
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : ListView.builder(
-              itemCount: programs.length,
-              itemBuilder: (BuildContext context, int index) {
-                final program = programs[index];
-                return ListTile(
-                  title: Container(
-                    color: Colors.white,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 200,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                           ImageFiltered(
-                            imageFilter: ImageFilter.blur(
-                              sigmaX:10,
-                              sigmaY:10,
-                            ),
-                            child:Image.asset('assets/images/1702198475838.jpg',
-                            fit: BoxFit.fill,) ,
-                            ),
-                          Container(
-                            color: Colors.black.withOpacity(0.4),
-                          ),
-                          Text(
-                            program['title'],
-                            style: TextStyle(fontSize: 30, color: Colors.white,fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
+      ? Center(
+          child: CircularProgressIndicator(),
+        )
+      : ListView.builder(
+          itemCount: programs.length,
+          itemBuilder: (BuildContext context, int index) {
+            final program = programs[index];
+            return ListTile(
+              onTap: () {
+                // Navigate to the Event page with program data
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EventProgram(programId: program['id']),
                   ),
                 );
               },
-            ),
-  
-  );
+              title: Container(
+                color: Colors.white,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 200,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      ImageFiltered(
+                        imageFilter: ImageFilter.blur(
+                          sigmaX: 10,
+                          sigmaY: 10,
+                        ),
+                        child: Image.asset('assets/images/1702198475838.jpg',
+                          fit: BoxFit.fill,),
+                      ),
+                      Container(
+                        color: Colors.black.withOpacity(0.4),
+                      ),
+                      Text(
+                        program['title'],
+                        style: TextStyle(fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+      ),
+  ),
+);
 }

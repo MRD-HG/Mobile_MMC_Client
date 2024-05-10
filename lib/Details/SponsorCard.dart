@@ -35,14 +35,12 @@ class _SponsorFooterState extends State<SponsorFooter> {
     super.initState();
     _futureSponsors = fetchSponsors();
   }
-  String uri = Constant.apiUrl; 
 
   Future<List<Sponsor>> fetchSponsors() async {
-    final response = await http.get(Uri.parse('$uri/sponsor'));
+    final response = await http.get(Uri.parse('${Constant.apiUrl}/sponsor'));
 
     if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Sponsor.fromJson(json)).toList();
+      return List<Sponsor>.from(json.decode(response.body).map((json) => Sponsor.fromJson(json)));
     } else {
       throw Exception('Failed to load sponsors');
     }
@@ -50,74 +48,49 @@ class _SponsorFooterState extends State<SponsorFooter> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey[200],
-      padding: EdgeInsets.all(16.0),
-      child: FutureBuilder<List<Sponsor>>(
-        future: _futureSponsors,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            return Column(
-              children: [
-                Text(
-                  'Our Sponsors',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-                ),
-                SizedBox(height: 16.0),
-                Wrap(
-                  spacing: 16.0,
-                  runSpacing: 16.0,
-                  children: snapshot.data!.map((sponsor) {
-                    return SponsorCard(sponsor: sponsor);
-                  }).toList(),
-                ),
-              ],
-            );
-          }
-        },
-      ),
+    return FutureBuilder<List<Sponsor>>(
+      future: _futureSponsors,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return SizedBox(
+            height: 120, // Adjust height according to your UI needs
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return _buildSponsorItem(context, snapshot.data![index]);
+              },
+            ),
+          );
+        }
+      },
     );
   }
-}
 
-class SponsorCard extends StatelessWidget {
-  final Sponsor sponsor;
-
-  SponsorCard({required this.sponsor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 3.0,
+  Widget _buildSponsorItem(BuildContext context, Sponsor sponsor) {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) => Container(
+            padding: EdgeInsets.all(20),
+            child: Text(sponsor.description),
+          ),
+        );
+      },
       child: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.network(
-              sponsor.logo,
-              width: 100,
-              height: 100,
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              sponsor.name,
-              style: TextStyle(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 4.0),
-            Text(
-              sponsor.description,
-              textAlign: TextAlign.center,
-            ),
-          ],
+        padding: const EdgeInsets.all(8.0),
+        child: CircleAvatar(
+          radius: 30, // Adjust size as needed
+          backgroundImage: NetworkImage(sponsor.logo),
+          backgroundColor: Colors.transparent,
         ),
       ),
     );
   }
 }
+

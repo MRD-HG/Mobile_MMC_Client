@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 
 class Error404 extends StatelessWidget {
    Error404({super.key});

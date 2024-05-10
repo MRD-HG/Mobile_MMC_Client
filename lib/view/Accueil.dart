@@ -1,9 +1,14 @@
+// ignore_for_file: prefer_const_constructors, unused_import
+
 import 'dart:convert';
+import 'dart:html';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../Details/Register.dart';
 import '../Details/SpeakerDetails.dart';
+import '../Details/SponsorCard.dart';
 import '../controller/Constant.dart';
 
 class Events {
@@ -78,8 +83,13 @@ class _AccueilState extends State<Accueil> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        appBar:AppBar(
+          elevation: 0.0,
+          backgroundColor: Colors.white,
+        ),
         body: SingleChildScrollView(
           child: Column(
+            
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSearchBar(),
@@ -206,7 +216,7 @@ class _AccueilState extends State<Accueil> {
           ),
         ),
         SizedBox(height: 10),
-        _buildSponsors(),
+        SponsorFooter(),
       ],
     );
   }
@@ -402,7 +412,7 @@ class EventDetailsPage extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RegisterForm(),
+            builder: (context) => RegisterForm(idEvent: event.id,),
           ),
         );
       },

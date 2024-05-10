@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:client_mobile/view/Accueil.dart';
 import 'package:client_mobile/view/Event.dart';
 import 'package:client_mobile/view/Program.dart';
@@ -7,7 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:motion_tab_bar/MotionTabBar.dart';
 import 'package:get/get.dart';
 import 'package:client_mobile/controller/bottom_navigation_controller.dart';
-//https://goodbrushedwave50.conveyor.cloud/gateway/event
+
+// ignore: must_be_immutable
 class MontionTabBarPage extends StatelessWidget {
    MontionTabBarPage({super.key});
    BottomNavigationController bottomNavigationController=Get.put(BottomNavigationController());

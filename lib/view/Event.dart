@@ -32,6 +32,7 @@ class _EventState extends State<Event> with TickerProviderStateMixin {
       if (response.statusCode == 200) {
         setState(() {
           events = json.decode(response.body);
+         
           isLoading = false;
         });
       } else {
@@ -164,13 +165,15 @@ class _EventState extends State<Event> with TickerProviderStateMixin {
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            Image.network(
+           FittedBox(
+            child : Image.network(
               event['imagePath'].startsWith('http')
                   ? event['imagePath']
                   : 'assets/images/blue.jpg',
-              fit: BoxFit.fitWidth,
+              fit: BoxFit.fill,
               height: 170.0,
             ),
+           ),
             Positioned(
               bottom: 16.0,
               left: 16.0,
@@ -186,12 +189,13 @@ class _EventState extends State<Event> with TickerProviderStateMixin {
                     ),
                   ),
                   Text(
-                    "${event['date']} ${event['time']}",
+                    "${event['startDate'].split('T')[1] } ${event['startDate'].split('T')[0] }",
                     style: TextStyle(color: Colors.white70),
                   ),
                 ],
               ),
             ),
+          
             Positioned(
               bottom: 10.0,
               right: 10.0,
@@ -203,11 +207,11 @@ class _EventState extends State<Event> with TickerProviderStateMixin {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => RegisterForm(),
+                      builder: (context) => RegisterForm(idEvent: event['id'].toString()),
                     ),
                   );
                 },
-                child: Text(
+                child : const Text(
                   "Register",
                   style: TextStyle(color: Colors.white),
                 ),

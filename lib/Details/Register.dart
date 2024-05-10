@@ -1,23 +1,31 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../controller/Constant.dart';
 
 class RegisterForm extends StatefulWidget {
+  final String idEvent;
+  RegisterForm({Key? key, required this.idEvent}) : super(key: key);
+
   @override
   _RegisterFormState createState() => _RegisterFormState();
 }
 
 class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
-
+  String gender = "";
+  String? idParticipant;
   // Form fields
   String _firstName = '';
   String _lastName = '';
   String _email = '';
   String _phone = '';
-  String _gender = '';
+
   String _city = '';
 
+  String url = Constant.apiUrl;
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -27,31 +35,64 @@ class _RegisterFormState extends State<RegisterForm> {
         'lastName': _lastName,
         'email': _email,
         'phone': _phone,
-        'gender': _gender,
+        'gender': gender,
         'city': _city,
       };
 
       String requestBodyJson = jsonEncode(requestBody);
 
-      // Send POST request
       try {
         var response = await http.post(
-          Uri.parse('https://littletankayak18.conveyor.cloud/gateway/Participant'),
+          Uri.parse('$url/Participant'),
           headers: {
             'Content-Type': 'application/json',
           },
-          body: requestBodyJson, 
+          body: requestBodyJson,
         );
 
         if (response.statusCode == 200) {
-          print('Registration successful!');
-          print(response.body);
+          print("Success");
+          var data = jsonDecode(response.body);
+          print(
+              "Full response data: $data");
+
+      
+          idParticipant = data['id'];
+
+          if (idParticipant == null) {
+            print("id_Participant is not found in the response.");
+          } else {
+            print("here's id participant ==> $idParticipant");
+          }
         } else {
           // Handle error response
-          print('Error: ${response.reasonPhrase}');
+          print('Error: ${response.statusCode} ${response.reasonPhrase}');
+          print(response.body);
         }
       } catch (e) {
         print('Failed to submit form: $e');
+      }
+      try {
+        var response = await http.post(
+          Uri.parse('$url/EventParticipant'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'id_Participant': idParticipant,
+            'id_Event': widget.idEvent,
+          }),
+        );
+        var id = widget.idEvent;
+        
+        if (response.statusCode == 200) {
+          Text("Success");
+        
+        }
+        if (response.statusCode == 400) {
+          Text("failed");
+         
+        }
+      } catch (e) {
+        print('Failed to submit form: $e ');
       }
     }
   }
@@ -155,22 +196,37 @@ class _RegisterFormState extends State<RegisterForm> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Gender',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
+                  child: Column(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text('Gender',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your gender';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _gender = value!;
-                    },
+                      // RadioListTile for Male
+                      RadioListTile<String>(
+                        title: const Text("Male"),
+                        value: "male",
+                        groupValue: gender,
+                        onChanged: (String? value) {
+                          setState(() {
+                            gender = value!;
+                          });
+                        },
+                      ),
+
+                      RadioListTile<String>(
+                        title: const Text("Female"),
+                        value: "female",
+                        groupValue: gender,
+                        onChanged: (String? value) {
+                          setState(() {
+                            gender = value!;
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 Padding(
@@ -197,14 +253,16 @@ class _RegisterFormState extends State<RegisterForm> {
                 Center(
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.yellow[600]),
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.yellow[600]),
                       fixedSize: MaterialStateProperty.all(Size(
                         MediaQuery.of(context).size.width * 0.8,
                         MediaQuery.of(context).size.height * 0.07,
                       )),
                     ),
                     onPressed: _submitForm,
-                    child: Text('Submit', style: TextStyle(color: Colors.white)),
+                    child:
+                        Text('Submit', style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
@@ -214,10 +272,4 @@ class _RegisterFormState extends State<RegisterForm> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: RegisterForm(),
-  ));
 }
