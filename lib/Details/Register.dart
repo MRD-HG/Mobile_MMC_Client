@@ -41,7 +41,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
       String requestBodyJson = jsonEncode(requestBody);
 
-      try {
+      try{
+        var respo
         var response = await http.post(
           Uri.parse('$url/Participant'),
           headers: {
@@ -81,8 +82,7 @@ class _RegisterFormState extends State<RegisterForm> {
             'id_Event': widget.idEvent,
           }),
         );
-        var id = widget.idEvent;
-        
+
         if (response.statusCode == 200) {
           Text("Success");
         

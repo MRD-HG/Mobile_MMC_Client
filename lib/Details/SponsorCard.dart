@@ -33,18 +33,10 @@ class _SponsorFooterState extends State<SponsorFooter> {
   @override
   void initState() {
     super.initState();
-    _futureSponsors = fetchSponsors();
+
   }
 
-  Future<List<Sponsor>> fetchSponsors() async {
-    final response = await http.get(Uri.parse('${Constant.apiUrl}/sponsor'));
 
-    if (response.statusCode == 200) {
-      return List<Sponsor>.from(json.decode(response.body).map((json) => Sponsor.fromJson(json)));
-    } else {
-      throw Exception('Failed to load sponsors');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

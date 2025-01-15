@@ -27,7 +27,7 @@ class _EventProgramState extends State<EventProgram> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    fetchData();
+
   }
 
   Future<void> fetchData() async {

@@ -65,7 +65,7 @@ class _SpeakerState extends State<Speaker> {
                     transitionDuration: Duration(milliseconds: 500),
                     pageBuilder: (context, animation, secondaryAnimation) => SpeakerDetailsPage(
                       idspeaker: '${speaker['id']}',
-                      speakerName: '${speaker['firstname']} ${speaker['lastname']}',
+                      speakerName: '${speaker['firstname']} ${speaker['lastname']}', speakerId: '',
                     ),
                     transitionsBuilder: (context, animation, secondaryAnimation, child) {
                       var begin = Offset(1.0, 0.0);
@@ -105,18 +105,18 @@ class _SpeakerState extends State<Speaker> {
                       ),
                       // SizedBox(height: 16.0),
                       Text(
-                        '${speaker['firstname']} ${speaker['lastname']}',
+                        '${speaker['firstname']} ${speaker['lastname']} jmustapha roudani',
                         style: TextStyle(fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
                   
                       // SizedBox(height: 8.0),
                       Text(
-                        speaker['bio'],
+                        '${speaker['bio']} here there is description',
                         textAlign: TextAlign.center,
                         // maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.grey),
+                        style: const TextStyle(color: Colors.grey),
                       ),
                     ],
                   ),
