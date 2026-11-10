@@ -1,0 +1,33 @@
+{
+  "name": "Morocco Microsoft Community",
+  "shortName": "MMC",
+  "about": {
+    "en": "An offline and online community that shares knowledge around Microsoft technologies through its leads and members (MVPs and MCTs), by hosting events and speaking at events hosted by others. MMC aims to inspire students and professionals and help them get into Microsoft technologies the professional way.",
+    "fr": "Une communauté en ligne et sur le terrain qui partage le savoir autour des technologies Microsoft grâce à ses leaders et membres (MVP et MCT), en organisant des événements et en intervenant dans ceux d'autres organisateurs. MMC veut inspirer étudiants et professionnels et les aider à adopter les technologies Microsoft de manière professionnelle."
+  },
+  "motto": "Sharing is Caring!",
+  "focus": ["Azure", "AI", "GitHub Copilot", ".NET", "DevOps", "Data Platform", "Microsoft 365 Copilot"],
+  "email": "Moroccomicrosoftcommunity@gmail.com",
+  "links": [
+    { "type": "website", "label": "moroccomicrosoftcommunity.com", "url": "https://moroccomicrosoftcommunity.com" },
+    { "type": "linkedin", "label": "LinkedIn", "url": "https://www.linkedin.com/company/moroccomicrosoftcommunity/" },
+    { "type": "facebook", "label": "Facebook group", "url": "https://www.facebook.com/groups/2394490134114658" },
+    { "type": "youtube", "label": "YouTube", "url": "https://www.youtube.com/channel/UCQv1YtnzL3peYQRugSkUdpw" },
+    { "type": "instagram", "label": "Instagram", "url": "https://instagram.com/moroccomicrosoft" },
+    { "type": "website", "label": "Request an event", "url": "https://moroccomicrosoftcommunity.com/request-event" }
+  ],
+  "partners": [
+    { "name": "Microsoft", "url": "https://www.microsoft.com" },
+    { "name": "DYN IT Maroc", "url": "https://www.dynitmaroc.com/" },
+    { "name": "FadiliCT Consultancy", "url": "https://fadilliconsulting.com/" },
+    { "name": "Nextech", "url": "https://www.nextech.ma/" },
+    { "name": "Teknologiate", "url": "https://www.technologiate.com/" }
+  ],
+  "gallery": [
+    "assets/images/gallery/community_meetup.jpg",
+    "assets/images/gallery/community_students.jpg",
+    "assets/images/gallery/community_1337.jpg",
+    "assets/images/gallery/ouarzazate_team.jpg"
+  ],
+  "source": "moroccomicrosoftcommunity.com (home page) · globalai.community"
+}
