@@ -29,6 +29,5 @@ flutter:
   assets:
     - assets/data/
     - assets/images/brand/
-    - assets/images/events/
     - assets/images/speakers/
     - assets/images/gallery/

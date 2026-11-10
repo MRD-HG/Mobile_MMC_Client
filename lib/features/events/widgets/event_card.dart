@@ -164,12 +164,14 @@ class EventTile extends StatelessWidget {
                       ),
                     ),
                     if (event.displayCity.isNotEmpty)
-                      Text(
-                        event.isOnline ? context.s.online : event.displayCity,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      Flexible(
+                        child: Text(
+                          event.isOnline ? context.s.online : event.displayCity,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
                       ),
                   ],
                 ),

@@ -250,7 +250,7 @@ const _topicRules = <String, String>{
   r'github': 'GitHub',
   r'azure': 'Azure',
   r'devops': 'DevOps',
-  r'\b(ai|ia|ml|genai)\b|intelligence artificielle|artificial intelligence|machine learning|agent': 'AI',
+  r'\b(ai|ia|ml|genai)\b|intelligence artificielle|artificial intelligence|machine learning|\bagent': 'AI',
   r'\bdata\b|données|fabric|power ?bi|sql': 'Data',
   r'\.net\b|dotnet|c#': '.NET',
   r'power (platform|apps|automate)': 'Power Platform',

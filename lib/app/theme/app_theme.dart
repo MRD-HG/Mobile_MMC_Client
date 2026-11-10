@@ -16,19 +16,6 @@ class MmcColors {
 
   static const logoColors = [red, green, blue, yellow];
 
-  static Color accent(String name) {
-    switch (name) {
-      case 'red':
-        return red;
-      case 'green':
-        return green;
-      case 'yellow':
-        return yellow;
-      default:
-        return blue;
-    }
-  }
-
   /// Stable colour for a topic label.
   static Color forTopic(String topic) =>
       logoColors[topic.codeUnits.fold<int>(0, (a, b) => a + b) % logoColors.length];

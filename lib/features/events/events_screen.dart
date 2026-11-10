@@ -95,7 +95,8 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Widget _buildBody(BuildContext context, ContentBundle data) {
     final s = context.s;
-    final now = AppScope.of(context).clock();
+    final scope = AppScope.of(context);
+    final now = scope.clock();
     final events = filterEvents(
       data.events,
       now: now,
@@ -104,9 +105,11 @@ class _EventsScreenState extends State<EventsScreen> {
       topic: _topic,
     );
 
-    return CustomScrollView(
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      slivers: [
+    return RefreshIndicator(
+      onRefresh: scope.content.refresh,
+      child: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        slivers: [
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(MmcSpacing.l, MmcSpacing.s, MmcSpacing.l, 0),
@@ -188,7 +191,8 @@ class _EventsScreenState extends State<EventsScreen> {
               itemBuilder: (context, i) => EventCard(event: events[i]),
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 }
