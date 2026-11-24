@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:client_mobile/app/controllers.dart';
 import 'package:client_mobile/core/storage/key_value_store.dart';
