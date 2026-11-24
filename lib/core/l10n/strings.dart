@@ -73,7 +73,12 @@ class S {
       _t('No event matches your search.', 'Aucun événement ne correspond à votre recherche.');
   String get clearFilters => _t('Clear filters', 'Effacer les filtres');
   String get upcomingBadge => _t('Upcoming', 'À venir');
+  String get ongoingBadge => _t('Happening now', 'En cours');
   String get pastBadge => _t('Past', 'Terminé');
+  String get filterCity => _t('City', 'Ville');
+  String get filterProgram => _t('Program', 'Programme');
+  String activeFilters(int n) =>
+      isFrench ? '$n filtre${n > 1 ? 's' : ''} actif${n > 1 ? 's' : ''}' : '$n filter${n == 1 ? '' : 's'} active';
   String eventsCount(int n) => isFrench
       ? '$n événement${n > 1 ? 's' : ''}'
       : '$n event${n == 1 ? '' : 's'}';
@@ -81,6 +86,7 @@ class S {
   // Event details
   String get aboutEvent => _t('About the event', 'À propos');
   String get dateAndTime => _t('Date & time', 'Date et heure');
+  String get timeTbc => _t('Time to be confirmed', 'Horaire à confirmer');
   String get location => _t('Location', 'Lieu');
   String get topics => _t('Topics', 'Thèmes');
   String get speakers => _t('Speakers', 'Intervenants');
@@ -118,6 +124,10 @@ class S {
       _t('No speaker matches your search.', 'Aucun intervenant ne correspond.');
 
   // Saved
+  String get savedUnavailable => _t('Saved event no longer in the catalog',
+      'Événement enregistré retiré du catalogue');
+  String get removeLabel => _t('Remove', 'Retirer');
+  String get noEditionsYet => _t('No editions announced yet', 'Pas encore d\'édition annoncée');
   String get savedEmptyTitle => _t('No saved events yet', 'Aucun événement enregistré');
   String get savedEmptyBody => _t('Tap the bookmark icon on an event to keep it here.',
       'Touchez l\'icône signet d\'un événement pour le retrouver ici.');
@@ -151,7 +161,8 @@ class S {
       'Les événements, intervenants et programmes proviennent du site officiel '
           'de MMC (moroccomicrosoftcommunity.com). Une copie est incluse pour un usage hors ligne.');
   String get dataSource => _t('Data source', 'Source des données');
-  String get offlineMode => _t('Offline copy', 'Copie hors ligne');
+  String get offlineMode => _t('Bundled offline copy', 'Copie hors ligne intégrée');
+  String get cachedMode => _t('Last update, saved on device', 'Dernière mise à jour, enregistrée sur l\'appareil');
   String get liveMode => _t('Live — MMC website', 'En direct — site MMC');
   String get refreshNow => _t('Refresh now', 'Actualiser');
   String get version => _t('Version', 'Version');

@@ -29,7 +29,12 @@ class SavedScreen extends StatelessWidget {
                 if (au != bu) return au ? -1 : 1;
                 return au ? a.start.compareTo(b.start) : b.start.compareTo(a.start);
               });
-            if (saved.isEmpty) {
+            // Bookmarks whose event is no longer in the current dataset:
+            // keep them visible instead of silently dropping them (MMC-014).
+            final knownIds = data.events.map((e) => e.id).toSet();
+            final orphans =
+                scope.bookmarks.ids.where((id) => !knownIds.contains(id)).toList();
+            if (saved.isEmpty && orphans.isEmpty) {
               return MessageView(
                 icon: Icons.bookmark_border,
                 title: s.savedEmptyTitle,
@@ -38,11 +43,27 @@ class SavedScreen extends StatelessWidget {
                 onAction: () => HomeShell.goTo(context, ShellTab.events),
               );
             }
-            return ListView.separated(
+            return ListView(
               padding: const EdgeInsets.fromLTRB(MmcSpacing.l, 0, MmcSpacing.l, MmcSpacing.xl),
-              itemCount: saved.length,
-              separatorBuilder: (_, __) => const SizedBox(height: MmcSpacing.l),
-              itemBuilder: (context, i) => EventCard(event: saved[i]),
+              children: [
+                for (final e in saved) ...[
+                  EventCard(event: e),
+                  const SizedBox(height: MmcSpacing.l),
+                ],
+                for (final id in orphans)
+                  MmcCard(
+                    child: ListTile(
+                      leading: const Icon(Icons.event_busy_outlined),
+                      title: Text(s.savedUnavailable),
+                      subtitle: Text(id, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      trailing: IconButton(
+                        tooltip: s.removeLabel,
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () => scope.bookmarks.toggle(id),
+                      ),
+                    ),
+                  ),
+              ],
             );
           },
         ),

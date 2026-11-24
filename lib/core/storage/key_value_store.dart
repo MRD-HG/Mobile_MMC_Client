@@ -9,6 +9,9 @@ abstract class KeyValueStore {
   Future<void> remove(String key);
 }
 
+/// SharedPreferences-backed store. Writes are best-effort: a failed or
+/// rejected write (MMC-017) must never crash the UI — the in-memory state
+/// stays correct for the session and is re-written on the next change.
 class SharedPrefsStore implements KeyValueStore {
   SharedPrefsStore(this._prefs);
 
@@ -18,20 +21,43 @@ class SharedPrefsStore implements KeyValueStore {
       SharedPrefsStore(await SharedPreferences.getInstance());
 
   @override
-  String? getString(String key) => _prefs.getString(key);
+  String? getString(String key) {
+    try {
+      return _prefs.getString(key);
+    } catch (_) {
+      return null; // corrupted value of another type
+    }
+  }
 
   @override
-  List<String>? getStringList(String key) => _prefs.getStringList(key);
+  List<String>? getStringList(String key) {
+    try {
+      return _prefs.getStringList(key);
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
-  Future<void> setString(String key, String value) => _prefs.setString(key, value);
+  Future<void> setString(String key, String value) async {
+    try {
+      await _prefs.setString(key, value);
+    } catch (_) {}
+  }
 
   @override
-  Future<void> setStringList(String key, List<String> value) =>
-      _prefs.setStringList(key, value);
+  Future<void> setStringList(String key, List<String> value) async {
+    try {
+      await _prefs.setStringList(key, value);
+    } catch (_) {}
+  }
 
   @override
-  Future<void> remove(String key) => _prefs.remove(key);
+  Future<void> remove(String key) async {
+    try {
+      await _prefs.remove(key);
+    } catch (_) {}
+  }
 }
 
 class MemoryStore implements KeyValueStore {

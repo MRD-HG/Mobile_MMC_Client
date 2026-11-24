@@ -33,14 +33,14 @@ void main() {
     expect(find.text('3 events'), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'tanger');
     await tester.pumpAndSettle();
-    expect(find.text('1 event'), findsOneWidget);
+    expect(find.textContaining('1 event'), findsOneWidget);
     expect(find.text('Global AI Bootcamp – Tanger'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.close));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Upcoming').first);
     await tester.pumpAndSettle();
-    expect(find.text('1 event'), findsOneWidget);
+    expect(find.textContaining('1 event'), findsOneWidget);
   });
 
   testWidgets('event details: register, sessions and bookmark', (tester) async {

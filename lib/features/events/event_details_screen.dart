@@ -40,7 +40,8 @@ class _EventDetailsView extends StatelessWidget {
     final s = context.s;
     final theme = Theme.of(context);
     final locale = s.languageCode;
-    final upcoming = event.isUpcoming(AppScope.of(context).clock());
+    final status = event.statusAt(AppScope.of(context).clock());
+    final upcoming = status != EventStatus.past;
     final program = data.programById(event.programId);
     final gallery = event.galleryImages.skip(1).toList();
 
@@ -83,10 +84,7 @@ class _EventDetailsView extends StatelessWidget {
                   runSpacing: 8,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Pill(
-                      upcoming ? s.upcomingBadge : s.pastBadge,
-                      color: upcoming ? MmcColors.green : theme.colorScheme.outline,
-                    ),
+                    StatusPill(status: status),
                     if (event.isOnline)
                       Pill(s.online, color: MmcColors.blue, icon: Icons.videocam_outlined),
                     if (program != null)
@@ -110,7 +108,11 @@ class _EventDetailsView extends StatelessWidget {
                       _InfoRow(
                         icon: Icons.calendar_today_outlined,
                         title: Formatters.longDate(event.start, locale),
-                        subtitle: Formatters.timeRange(event, locale),
+                        // Published time, or honest "to be confirmed" — never
+                        // a fabricated 09:00 (MMC-007).
+                        subtitle: Formatters.timeRange(event, locale) ??
+                            event.timeLabel ??
+                            s.timeTbc,
                       ),
                       if (event.isOnline)
                         _InfoRow(icon: Icons.videocam_outlined, title: s.online)

@@ -23,7 +23,8 @@ class ProgramDetailsScreen extends StatelessWidget {
       final theme = Theme.of(context);
       final now = AppScope.of(context).clock();
       final events = data.eventsForProgram(program.id);
-      final upcoming = events.where((e) => e.isUpcoming(now)).toList();
+      final upcoming = events.where((e) => e.isUpcoming(now)).toList()
+        ..sort((a, b) => a.start.compareTo(b.start));
       final past = events.where((e) => !e.isUpcoming(now)).toList();
 
       return Scaffold(

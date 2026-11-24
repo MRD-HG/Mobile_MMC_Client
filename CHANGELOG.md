@@ -1,5 +1,37 @@
 # Changelog
 
+## 2.1.0 — 2026-11-24
+
+Hardening release, answering an external code audit point by point
+(docs/SCORPION_AUDIT_V3.md).
+
+### Fixed
+- Android build: removed the conflicting legacy AGP 4.2.2/Kotlin 1.7.10
+  buildscript; coherent Gradle 8.3 + AGP 8.1.1 + Kotlin 1.8.22 toolchain.
+- An empty or broken API response can no longer replace good data; malformed
+  records are counted and duplicate ids dropped.
+- Events with invalid dates are rejected instead of appearing as 1970.
+- Events without a published time no longer pretend to start at 09:00: the UI
+  says "Time to be confirmed", classification covers the whole day, and the
+  calendar export becomes an all-day entry.
+- The published cover image (coverMediaUrl) is now used.
+- Home's "See all" shortcuts preset the Events tab filters.
+- Upcoming program editions sort soonest-first; programs without events appear
+  in the catalog.
+- Bookmarks of events that left the catalog stay visible with a remove action.
+- External links restricted to https/http/mailto.
+- Preference reads/writes survive storage failures.
+
+### Added
+- Persistent content cache: the last successful fetch is stored on device and
+  used at the next cold start (cache → snapshot → live refresh).
+- "Happening now" event status.
+- City and program filters in Events, combinable with topic/time/search, with
+  an active-filter count and reset.
+- GitHub Actions CI: analyze, tests and a debug APK on every push.
+- Text scaling honoured up to 2.0× (carousels grow with the font size).
+
+
 ## 2.0.0 — 2026-11-10
 
 Full modernisation of the app. See `docs/AUDIT.md` for the defects it fixes.

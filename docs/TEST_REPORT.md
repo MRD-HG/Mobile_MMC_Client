@@ -1,4 +1,15 @@
-# Test report — 2026-11-10
+# Test report — updated 2026-11-24 (v2.1.0)
+
+**New since v2:** CI (`.github/workflows/ci.yml`) now executes `flutter
+analyze`, `flutter test` and `flutter build apk --debug` on GitHub runners
+with Flutter 3.24.5 — check the Actions tab of the repository for the first
+executed run. Everything below about the authoring sandbox still applies.
+New unit tests cover: suspicious-empty API responses, cache persistence and
+corruption, parser skip/dedup diagnostics, event status classification,
+unknown-time handling, cover-image priority, URL scheme validation, city and
+program filters, and all-day calendar export.
+
+# Original report — 2026-11-10
 
 ## Summary
 

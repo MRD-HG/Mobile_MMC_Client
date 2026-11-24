@@ -1,5 +1,8 @@
 import '../../core/config/app_config.dart';
 
+/// Lifecycle of an event relative to "now".
+enum EventStatus { upcoming, ongoing, past }
+
 /// A speaker slot inside an event.
 class EventSession {
   const EventSession({required this.speakerId, this.title, this.durationMinutes});
@@ -10,7 +13,9 @@ class EventSession {
 
   /// The API sometimes prefixes titles with "Session Title:".
   String? get cleanTitle {
-    final t = title?.replaceFirst(RegExp(r'^\s*session title\s*:\s*', caseSensitive: false), '').trim();
+    final t = title
+        ?.replaceFirst(RegExp(r'^\s*session title\s*:\s*', caseSensitive: false), '')
+        .trim();
     return (t == null || t.isEmpty) ? null : t;
   }
 }
@@ -27,6 +32,12 @@ class EventMedia {
 }
 
 /// A community event, mapped from `GET /api/events` of moroccomicrosoftcommunity.com.
+///
+/// Times are treated as wall-clock local times of the event (Morocco for
+/// in-person events). The device clock is used for upcoming/past decisions;
+/// for the app's Moroccan audience this is exact, for users in another
+/// timezone it can be off by the timezone difference. A full timezone
+/// database was deliberately not added — see docs/SCORPION_AUDIT_V3.md.
 class MmcEvent {
   const MmcEvent({
     required this.id,
@@ -34,12 +45,14 @@ class MmcEvent {
     required this.start,
     this.slug,
     this.end,
+    this.timeKnown = false,
     this.timeLabel,
     this.programId,
     this.city,
     this.venue,
     this.isOnline = false,
     this.description = '',
+    this.coverUrl,
     this.media = const [],
     this.sessions = const [],
     this.partners = const [],
@@ -52,16 +65,25 @@ class MmcEvent {
   final String id;
   final String? slug;
   final String title;
+
+  /// Event start. When [timeKnown] is false, the time-of-day part is a
+  /// sorting convention (09:00) and must not be displayed as a schedule.
   final DateTime start;
   final DateTime? end;
 
-  /// Time exactly as published (e.g. "09:00 AM - 05:00 PM").
+  /// True when the published `time` field contained a parseable start time.
+  final bool timeKnown;
+
+  /// Time exactly as published (e.g. "09:00 AM - 05:00 PM"), unparsed.
   final String? timeLabel;
   final String? programId;
   final String? city;
   final String? venue;
   final bool isOnline;
   final String description;
+
+  /// Published cover image (`coverMediaUrl`), preferred over [media].
+  final String? coverUrl;
   final List<EventMedia> media;
   final List<EventSession> sessions;
   final List<String> partners;
@@ -76,8 +98,10 @@ class MmcEvent {
 
   List<String> get speakerIds => sessions.map((s) => s.speakerId).toList();
 
-  /// First still image, used as the cover.
+  /// Cover first, then the first still image of the gallery.
   String? get image {
+    final cover = coverUrl;
+    if (cover != null && cover.startsWith('http')) return cover;
     for (final m in media) {
       final url = m.imageUrl;
       if (url != null) return url;
@@ -93,16 +117,33 @@ class MmcEvent {
       slug == null ? null : '${AppConfig.websiteUrl}/events/${Uri.encodeComponent(slug!)}';
 
   /// Where to register: external page if the organiser uses one, otherwise
-  /// the MMC website (which handles registration itself).
+  /// the MMC website (which handles registration itself). Whether
+  /// registration is actually open is not published by the API, which is
+  /// why the UI sends people to the official page instead of claiming it.
   String? get registrationUrl => externalRegistrationUrl ?? webUrl;
 
+  /// Moment the event is considered started for status classification.
+  /// With no published time, the whole day counts.
+  DateTime get effectiveStart =>
+      timeKnown ? start : DateTime(start.year, start.month, start.day);
+
+  /// Moment the event is considered over. Published end when available;
+  /// otherwise the end of the start (or end-date) day. The value is for
+  /// classification only and is never displayed as a schedule.
   DateTime get effectiveEnd {
     final e = end;
     if (e != null && e.isAfter(start)) return e;
-    return start.add(const Duration(hours: 8));
+    return DateTime(start.year, start.month, start.day, 23, 59, 59);
   }
 
-  bool isUpcoming(DateTime now) => effectiveEnd.isAfter(now);
+  EventStatus statusAt(DateTime now) {
+    if (now.isBefore(effectiveStart)) return EventStatus.upcoming;
+    if (now.isAfter(effectiveEnd)) return EventStatus.past;
+    return EventStatus.ongoing;
+  }
+
+  /// Upcoming or ongoing (i.e. still worth attending).
+  bool isUpcoming(DateTime now) => statusAt(now) != EventStatus.past;
 
   String get displayCity => isOnline ? 'Online' : (city ?? '');
 
@@ -125,20 +166,27 @@ class MmcEvent {
         topics.any((t) => _fold(t).contains(q));
   }
 
+  /// Throws [FormatException] on records without a usable date or title,
+  /// so the parser can reject them instead of showing 1970 placeholders.
   factory MmcEvent.fromApi(Map<String, dynamic> json) {
-    final date = DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime(1970);
+    final title = (json['title'] as String? ?? '').trim();
+    if (title.isEmpty) throw const FormatException('Event without a title');
+    final date = DateTime.tryParse(json['date'] as String? ?? '');
+    if (date == null || date.year < 2000) {
+      throw FormatException('Invalid event date for "$title"');
+    }
     final endDate = DateTime.tryParse(json['endDate'] as String? ?? '');
     final timeLabel = (json['time'] as String?)?.trim();
     final times = parseTimeRange(timeLabel);
+    final timeKnown = times.$1 != null;
     final start = _at(date, times.$1 ?? const (9, 0));
     DateTime? end;
     if (times.$2 != null) {
       end = _at(endDate ?? date, times.$2!);
     } else if (endDate != null && endDate.isAfter(date)) {
-      end = _at(endDate, const (18, 0));
+      end = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
     }
 
-    final title = (json['title'] as String? ?? '').trim();
     final description = stripHtml(json['description'] as String? ?? '');
     final isOnline = json['isOnline'] == true ||
         (json['city'] as String? ?? '').trim().toLowerCase() == 'online';
@@ -173,6 +221,7 @@ class MmcEvent {
 
     final club = json['club'];
     final external = json['externalRegistrationUrl'] as String?;
+    final cover = (json['coverMediaUrl'] as String?)?.trim();
 
     return MmcEvent(
       id: '${json['id']}',
@@ -180,12 +229,14 @@ class MmcEvent {
       title: title,
       start: start,
       end: end,
+      timeKnown: timeKnown,
       timeLabel: (timeLabel == null || timeLabel.isEmpty) ? null : timeLabel,
       programId: json['programId'] as String?,
       city: isOnline ? null : _clean(json['city'] as String?),
       venue: _clean(json['location'] as String?),
       isOnline: isOnline,
       description: description,
+      coverUrl: (cover != null && cover.startsWith('http')) ? cover : null,
       media: media,
       sessions: sessions,
       partners: partners,
@@ -210,7 +261,7 @@ DateTime _at(DateTime day, (int, int) hm) =>
     DateTime(day.year, day.month, day.day, hm.$1, hm.$2);
 
 /// Parses free-text times such as "9:30", "09:00 - 17:00",
-/// "09:00 AM - 05:00 PM", "9:00am - 4:00pm", "20h00".
+/// "09:00 AM - 05:00 PM", "9:00am - 4:00pm", "10h00 - 13h30", "19h".
 ((int, int)?, (int, int)?) parseTimeRange(String? input) {
   if (input == null || input.trim().isEmpty) return (null, null);
   final re = RegExp(r'(\d{1,2})\s*(?:([:h.])\s*(\d{2})?)?\s*([ap])?\.?\s*m?\.?',
