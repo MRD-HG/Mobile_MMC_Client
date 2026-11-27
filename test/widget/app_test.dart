@@ -33,14 +33,15 @@ void main() {
     expect(find.text('3 events'), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'tanger');
     await tester.pumpAndSettle();
-    expect(find.text('1 event'), findsOneWidget);
-    expect(find.text('Global AI Bootcamp – Tanger'), findsOneWidget);
+    expect(find.textContaining('1 event'), findsOneWidget);
+    // Title appears on the card and on its branded image placeholder.
+    expect(find.text('Global AI Bootcamp – Tanger'), findsWidgets);
 
     await tester.tap(find.byIcon(Icons.close));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Upcoming').first);
     await tester.pumpAndSettle();
-    expect(find.text('1 event'), findsOneWidget);
+    expect(find.textContaining('1 event'), findsOneWidget);
   });
 
   testWidgets('event details: register, sessions and bookmark', (tester) async {
@@ -49,6 +50,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Register'), findsOneWidget);
+    await tester.dragUntilVisible(
+      find.text('GitHub Copilot · 45 min'),
+      find.byType(CustomScrollView),
+      const Offset(0, -200),
+    );
     expect(find.text('Hassan Fadili'), findsOneWidget);
     expect(find.text('GitHub Copilot · 45 min'), findsOneWidget);
 

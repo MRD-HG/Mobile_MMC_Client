@@ -56,10 +56,19 @@ class ContentController extends ChangeNotifier {
     }
   }
 
+  Future<void>? _refreshFuture;
+
   /// Fetches live data. Keeps the current data if the network fails.
-  Future<void> refresh() async {
+  /// Concurrent calls share one request; awaiting always reflects the
+  /// outcome of that request.
+  Future<void> refresh() {
     final repo = online;
-    if (repo == null || _refreshing) return;
+    if (repo == null) return Future.value();
+    return _refreshFuture ??=
+        _doRefresh(repo).whenComplete(() => _refreshFuture = null);
+  }
+
+  Future<void> _doRefresh(ContentRepository repo) async {
     _refreshing = true;
     notifyListeners();
     try {

@@ -13,6 +13,7 @@ import '../../core/widgets/content_builder.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/event.dart';
 import '../../data/repositories/content_repository.dart';
+import '../events/events_screen.dart' show EventTimeFilter;
 import '../events/widgets/event_card.dart';
 import '../programs/programs_screen.dart';
 
@@ -43,6 +44,9 @@ class _HomeBody extends StatelessWidget {
     final now = scope.clock();
     final upcoming = data.upcoming(now);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Fixed-height carousels grow with the user's text size (MMC-016).
+    final scale =
+        (MediaQuery.textScalerOf(context).scale(14) / 14).clamp(1.0, 1.8).toDouble();
 
     return RefreshIndicator(
       onRefresh: scope.content.refresh,
@@ -78,7 +82,8 @@ class _HomeBody extends StatelessWidget {
             child: SectionHeader(
               title: upcoming.length > 1 ? s.upcomingEvents : s.nextEvent,
               actionLabel: s.seeAll,
-              onAction: () => HomeShell.goTo(context, ShellTab.events),
+              onAction: () => HomeShell.goTo(context, ShellTab.events,
+                  time: EventTimeFilter.upcoming),
             ),
           ),
           SliverPadding(
@@ -110,7 +115,8 @@ class _HomeBody extends StatelessWidget {
             child: SectionHeader(
               title: s.latestEvents,
               actionLabel: s.seeAll,
-              onAction: () => HomeShell.goTo(context, ShellTab.events),
+              onAction: () => HomeShell.goTo(context, ShellTab.events,
+                  time: EventTimeFilter.past),
             ),
           ),
           SliverToBoxAdapter(child: _EventCarousel(events: data.past(now).take(6).toList())),
@@ -140,7 +146,7 @@ class _HomeBody extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 150,
+              height: 150 * scale,
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: MmcSpacing.l),
                 scrollDirection: Axis.horizontal,
@@ -169,7 +175,7 @@ class _HomeBody extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 128,
+              height: 128 * scale,
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: MmcSpacing.l),
                 scrollDirection: Axis.horizontal,
@@ -342,8 +348,10 @@ class _EventCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scale =
+        (MediaQuery.textScalerOf(context).scale(14) / 14).clamp(1.0, 1.8).toDouble();
     return SizedBox(
-      height: 300,
+      height: 300 * scale,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: MmcSpacing.l),
         scrollDirection: Axis.horizontal,
@@ -410,10 +418,10 @@ class DataStatusBanner extends StatelessWidget {
         final theme = Theme.of(context);
         String? text;
         IconData icon = Icons.cloud_off_outlined;
-        if (controller.refreshing && data.origin == ContentOrigin.snapshot) {
+        if (controller.refreshing && data.origin != ContentOrigin.live) {
           text = s.refreshing;
           icon = Icons.sync;
-        } else if (data.origin == ContentOrigin.snapshot && controller.refreshFailed) {
+        } else if (data.origin != ContentOrigin.live && controller.refreshFailed) {
           final date = data.updatedAt == null
               ? '—'
               : Formatters.longDate(data.updatedAt!.toLocal(), s.languageCode);

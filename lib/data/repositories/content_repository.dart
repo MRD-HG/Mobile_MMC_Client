@@ -3,7 +3,10 @@ import '../models/event.dart';
 import '../models/program.dart';
 import '../models/speaker.dart';
 
-enum ContentOrigin { live, snapshot }
+/// Where the displayed data came from.
+/// live: fetched from the API this session; cached: last successful fetch,
+/// persisted on device; snapshot: the JSON bundled with the app.
+enum ContentOrigin { live, cached, snapshot }
 
 /// Everything the app displays, loaded in one go.
 class ContentBundle {
@@ -49,15 +52,31 @@ class ContentBundle {
   List<MmcEvent> eventsForProgram(String programId) =>
       events.where((e) => e.programId == programId).toList();
 
-  /// Programs that have at least one event, most active first.
-  List<Program> get activePrograms {
+  Map<String, int> get _programCounts {
     final counts = <String, int>{};
     for (final e in events) {
       final id = e.programId;
       if (id != null) counts[id] = (counts[id] ?? 0) + 1;
     }
+    return counts;
+  }
+
+  /// Programs that have at least one event, most active first (Home carousel).
+  List<Program> get activePrograms {
+    final counts = _programCounts;
     return programs.where((p) => (counts[p.id] ?? 0) > 0).toList()
       ..sort((a, b) => (counts[b.id] ?? 0).compareTo(counts[a.id] ?? 0));
+  }
+
+  /// The full catalog: active programs first, then programs without
+  /// events yet (alphabetical), so none is hidden.
+  List<Program> get allProgramsByActivity {
+    final counts = _programCounts;
+    final list = [...programs]..sort((a, b) {
+        final byCount = (counts[b.id] ?? 0).compareTo(counts[a.id] ?? 0);
+        return byCount != 0 ? byCount : a.title.compareTo(b.title);
+      });
+    return list;
   }
 
   /// Soonest first.

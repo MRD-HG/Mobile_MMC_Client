@@ -20,7 +20,7 @@ class EventCard extends StatelessWidget {
     final s = context.s;
     final theme = Theme.of(context);
     final scope = AppScope.of(context);
-    final upcoming = event.isUpcoming(scope.clock());
+    final status = event.statusAt(scope.clock());
     final locale = s.languageCode;
 
     return MmcCard(
@@ -43,10 +43,7 @@ class EventCard extends StatelessWidget {
                 Positioned(
                   left: MmcSpacing.m,
                   top: MmcSpacing.m,
-                  child: Pill(
-                    upcoming ? s.upcomingBadge : s.pastBadge,
-                    color: upcoming ? MmcColors.green : Colors.black.withAlpha(150),
-                  ),
+                  child: StatusPill(status: status),
                 ),
                 Positioned(
                   right: MmcSpacing.xs,
@@ -181,6 +178,26 @@ class EventTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Upcoming / happening now / past.
+class StatusPill extends StatelessWidget {
+  const StatusPill({super.key, required this.status});
+
+  final EventStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.s;
+    switch (status) {
+      case EventStatus.upcoming:
+        return Pill(s.upcomingBadge, color: MmcColors.green);
+      case EventStatus.ongoing:
+        return Pill(s.ongoingBadge, color: MmcColors.red, icon: Icons.sensors);
+      case EventStatus.past:
+        return Pill(s.pastBadge, color: Colors.black.withAlpha(150));
+    }
   }
 }
 

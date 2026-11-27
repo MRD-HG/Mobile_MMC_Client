@@ -48,10 +48,11 @@ flutter build appbundle --release
 ## Data flow
 
 ```
-start ─▶ bundled snapshot (assets/data/mmc_snapshot.json) ─▶ UI is usable
+start ─▶ device cache (last successful fetch) ─▶ else bundled snapshot ─▶ UI usable
       └▶ GET https://moroccomicrosoftcommunity.com/api/{events,speakers,programs}
-            ├─ success → UI switches to live data
-            └─ failure → keeps the snapshot + "Offline" banner with Retry
+            ├─ validated → UI switches to live data, fetch persisted to cache
+            ├─ empty/broken payload → treated as failure (data kept)
+            └─ failure → keeps cache/snapshot + "Offline" banner with Retry
 ```
 
 To refresh the bundled snapshot before a release:

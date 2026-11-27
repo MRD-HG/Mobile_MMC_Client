@@ -92,10 +92,16 @@ class SettingsScreen extends StatelessWidget {
               SectionTitle(s.dataSource),
               MmcCard(
                 child: ListTile(
-                  leading: Icon(data?.origin == ContentOrigin.live
-                      ? Icons.cloud_done_outlined
-                      : Icons.cloud_off_outlined),
-                  title: Text(data?.origin == ContentOrigin.live ? s.liveMode : s.offlineMode),
+                  leading: Icon(switch (data?.origin) {
+                    ContentOrigin.live => Icons.cloud_done_outlined,
+                    ContentOrigin.cached => Icons.save_outlined,
+                    _ => Icons.cloud_off_outlined,
+                  }),
+                  title: Text(switch (data?.origin) {
+                    ContentOrigin.live => s.liveMode,
+                    ContentOrigin.cached => s.cachedMode,
+                    _ => s.offlineMode,
+                  }),
                   subtitle: data?.updatedAt == null
                       ? null
                       : Text(s.updatedOn(Formatters.longDate(

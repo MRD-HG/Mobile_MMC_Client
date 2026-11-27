@@ -17,7 +17,7 @@ class ProgramsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(s.navPrograms)),
       body: ContentBuilder(builder: (context, data) {
-        final programs = data.activePrograms;
+        final programs = data.allProgramsByActivity;
         return ListView(
           padding: const EdgeInsets.fromLTRB(MmcSpacing.l, 0, MmcSpacing.l, MmcSpacing.xl),
           children: [
@@ -71,8 +71,11 @@ class ProgramCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          s.eventsCount(eventCount),
-          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary),
+          eventCount > 0 ? s.eventsCount(eventCount) : s.noEditionsYet,
+          style: theme.textTheme.labelMedium?.copyWith(
+              color: eventCount > 0
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant),
         ),
         if (!compact && program.summary.isNotEmpty) ...[
           const SizedBox(height: MmcSpacing.s),

@@ -1,16 +1,6 @@
-buildscript {
-    ext.kotlin_version = '1.7.10'
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
+// Plugin versions are declared once, in settings.gradle (pluginManagement).
+// The legacy buildscript block (AGP 4.2.2 / Kotlin 1.7.10) was removed: it
+// conflicted with the plugins DSL and is incompatible with Gradle 8.
 allprojects {
     repositories {
         google()

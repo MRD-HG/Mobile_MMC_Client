@@ -74,9 +74,43 @@ void main() {
       expect(e.matches('rabat'), isFalse);
     });
 
-    test('malformed time falls back to 09:00', () {
+    test('malformed time falls back to 09:00 for sorting, flagged unknown', () {
       final e = MmcEvent.fromApi(const {'id': 'x', 'title': 't', 'date': '2025-03-01', 'time': 'TBA'});
       expect(e.start, DateTime(2025, 3, 1, 9));
+      expect(e.timeKnown, isFalse);
+      // The whole published day counts; no fabricated 8-hour duration.
+      expect(e.statusAt(DateTime(2025, 3, 1, 22)), EventStatus.ongoing);
+      expect(e.statusAt(DateTime(2025, 3, 2)), EventStatus.past);
+    });
+
+    test('status classification: upcoming / ongoing / past (MMC-009)', () {
+      expect(oujda.statusAt(DateTime(2026, 11, 25)), EventStatus.upcoming);
+      expect(oujda.statusAt(DateTime(2026, 11, 26, 12)), EventStatus.ongoing);
+      expect(oujda.statusAt(DateTime(2026, 11, 26, 18)), EventStatus.past);
+    });
+
+    test('published cover image wins over gallery media (MMC-008)', () {
+      final e = MmcEvent.fromApi(const {
+        'id': 'x',
+        'title': 't',
+        'date': '2025-01-01',
+        'coverMediaUrl': 'https://cdn.example.org/cover.webp',
+        'media': [
+          {'type': 'image', 'url': 'https://cdn.example.org/first.webp'},
+        ],
+      });
+      expect(e.image, 'https://cdn.example.org/cover.webp');
+    });
+
+    test('records with invalid dates are rejected, not shown as 1970 (MMC-006)', () {
+      expect(
+        () => MmcEvent.fromApi(const {'id': 'x', 'title': 't', 'date': 'soon'}),
+        throwsFormatException,
+      );
+      expect(
+        () => MmcEvent.fromApi(const {'id': 'x', 'title': '', 'date': '2025-01-01'}),
+        throwsFormatException,
+      );
     });
   });
 

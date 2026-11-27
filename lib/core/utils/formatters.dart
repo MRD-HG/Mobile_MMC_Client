@@ -11,8 +11,11 @@ class Formatters {
 
   static String time(DateTime d, String locale) => DateFormat.Hm(locale).format(d);
 
-  /// "09:00" or "09:30 – 16:30".
-  static String timeRange(MmcEvent e, String locale) {
+  /// "09:00" or "09:30 – 16:30". Null when the event has no published,
+  /// parseable time — callers must show "to be confirmed" instead of a
+  /// fabricated 09:00 (MMC-007).
+  static String? timeRange(MmcEvent e, String locale) {
+    if (!e.timeKnown) return null;
     final start = time(e.start, locale);
     final end = e.end;
     if (end == null || !end.isAfter(e.start)) return start;

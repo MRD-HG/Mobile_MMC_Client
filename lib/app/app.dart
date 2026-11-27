@@ -49,13 +49,13 @@ class MmcApp extends StatelessWidget {
           initialRoute: initialRoute,
           onGenerateRoute: AppRouter.onGenerateRoute,
           onUnknownRoute: AppRouter.onUnknownRoute,
-          // Never let a tiny-screen user's large font break layouts entirely,
-          // but still honour accessibility scaling up to 1.6x.
+          // Fixed-height carousels now grow with the text scale, so the
+          // clamp only caps extreme values instead of limiting accessibility.
           builder: (context, child) {
             final mq = MediaQuery.of(context);
             return MediaQuery(
               data: mq.copyWith(
-                textScaler: mq.textScaler.clamp(minScaleFactor: 1.0, maxScaleFactor: 1.6),
+                textScaler: mq.textScaler.clamp(maxScaleFactor: 2.0),
               ),
               child: child ?? const SizedBox.shrink(),
             );

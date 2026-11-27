@@ -16,17 +16,21 @@ class HomeShell extends StatefulWidget {
 
   final ShellTab initialTab;
 
-  /// Switches tab from anywhere below the shell (e.g. "See all").
-  static void goTo(BuildContext context, ShellTab tab, {String? topic}) {
+  /// Switches tab from anywhere below the shell (e.g. "See all"),
+  /// optionally pre-setting the Events tab's filters.
+  static void goTo(BuildContext context, ShellTab tab,
+      {String? topic, EventTimeFilter? time}) {
     final state = context.findAncestorStateOfType<HomeShellState>();
     if (state == null) return;
-    if (topic != null) state.topicRequest.value = topic;
+    if (topic != null || time != null) {
+      state.filterRequest.value = EventsFilterRequest(topic: topic, time: time);
+    }
     state.select(tab);
   }
 
-  /// Topic requested from another tab (consumed by the Events tab).
-  static ValueNotifier<String?>? topicRequestOf(BuildContext context) =>
-      context.findAncestorStateOfType<HomeShellState>()?.topicRequest;
+  /// Filter preset requested from another tab (consumed by the Events tab).
+  static ValueNotifier<EventsFilterRequest?>? filterRequestOf(BuildContext context) =>
+      context.findAncestorStateOfType<HomeShellState>()?.filterRequest;
 
   @override
   State<HomeShell> createState() => HomeShellState();
@@ -38,11 +42,12 @@ class HomeShellState extends State<HomeShell> {
   /// Lazily built tabs, kept alive once visited.
   final Set<ShellTab> _visited = {};
 
-  final ValueNotifier<String?> topicRequest = ValueNotifier<String?>(null);
+  final ValueNotifier<EventsFilterRequest?> filterRequest =
+      ValueNotifier<EventsFilterRequest?>(null);
 
   @override
   void dispose() {
-    topicRequest.dispose();
+    filterRequest.dispose();
     super.dispose();
   }
 
